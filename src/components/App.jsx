@@ -11,6 +11,8 @@ export class App extends Component {
     page: 1,
     images: [],
     isLoading: false,
+    hits: null,
+    totalHits: null,
   };
 
   async componentDidUpdate(_, prevState) {
@@ -29,6 +31,8 @@ export class App extends Component {
         this.setState({
           images: [...this.state.images, ...images.hits],
           isLoading: false,
+          hits: images.total,
+        totalHits: images.totalHits,
         });
       }
     } catch (error) {
@@ -41,16 +45,17 @@ export class App extends Component {
     this.setState({ page: 1, query, images: [], isLoading: true });
   };
   loadMore = () => {
-    this.setState(prevState => ({ page: prevState.page + 1, isLoading: true }));
+    this.setState(prevState => ({ page: prevState.page + 1, isLoading: true  }));
   };
 
   render() {
+    const { hits, totalHits, images, isLoading } = this.state;
     return (
       <div className="app">
         <SearchBar onSubmit={this.onSearchSubmit} />
-        <ImageGalleryList images={this.state.images} />
+        <ImageGalleryList images={images} />
 
-        {this.state.isLoading && (
+        {isLoading && (
           <Circles
             height="80"
             width="80"
@@ -60,7 +65,9 @@ export class App extends Component {
             wrapperStyle={{ display: 'flex', justifyContent: 'center' }}
           />
         )}
-        {this.state.images.length > 0 && <LoadMore onClick={this.loadMore} />}
+        {hits >= 12 && images.length !== totalHits && !isLoading && (
+          <LoadMore onClick={this.loadMore} />
+        )}
       </div>
     );
   }
